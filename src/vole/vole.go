@@ -6,8 +6,8 @@ import (
   btsync "github.com/vole/btsync-api"
   "github.com/vole/web"
   "io/ioutil"
-  "lib/config"
-  "lib/store"
+  "github.com/vole/vole/src/lib/config"
+  "github.com/vole/vole/src/lib/store"
   osuser "os/user"
   "path"
 )

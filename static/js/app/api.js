@@ -5,9 +5,46 @@ define([
 ],
 function (Config, $) {
 
+    var messageQueue = [];
+
 	return {
 
+        //ws
+        ready : false,
+
+        onmessage : function (ev) {
+            var model = JSON.parse(ev.data);
+            console.log('Message received:', model);
+        },
+
+        onopen : function (ev) {
+            this.ready = true;
+
+            while (messageQueue.length) {
+                var message = messageQueue.pop();
+                console.log(message);
+                this.ws.send(message);
+            }
+        },
+
+        init : function (ws, params) {
+            var self = this;
+            this.ws = ws;
+            ws.onmessage = this.onmessage;
+            ws.onopen = function(ev){
+                this.onopen.call(self, ev);
+            };
+
+            var message = JSON.stringify(params);
+            if (this.ready) {
+                this.ws.send(message);
+            } else {
+                messageQueue.push(message);
+            }
+        },
+
 		posts : function (params) {
+
 			var dfd = $.Deferred();
 
 			$.get('/api/posts', params || {}).done(function (result) {

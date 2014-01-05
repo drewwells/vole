@@ -11,6 +11,7 @@ import (
 	"github.com/vole/vole/src/lib/config"
 	"github.com/vole/vole/src/lib/store"
 	"github.com/vole/web"
+	"github.com/vole/chat"
 )
 
 var DIR = func() string {
@@ -52,6 +53,10 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// websocket server
+	server := chat.NewServer("/entry")
+	go server.Listen()
 
 	web.Get("/js/app/config.js", func(ctx *web.Context) string {
 		setJsonHeaders(ctx)

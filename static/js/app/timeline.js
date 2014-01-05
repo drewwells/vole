@@ -5,8 +5,9 @@ define([
 	'app/events',
 	'app/api',
 	'lib/handlebars',
-	'text!tmpl/post.hbs'
-], function (component, $, events, API, Handlebars, postTmpl) {
+	'text!tmpl/post.hbs',
+    'app/config'
+], function (component, $, events, API, Handlebars, postTmpl, Config) {
 
 	function timeline () {
 
@@ -21,7 +22,27 @@ define([
 			this.interval = setInterval(function () {
 				this.getNewPosts();
 			}.bind(this), 5000);
-		};
+            this.socket();
+        };
+
+        this.start = function () {
+			var params = {};
+            var ws;
+            API.user().done(function(user){
+			    if (!user) {
+                    return;
+                }
+
+                ws = new WebSocket("ws://" + Config.server.listen +
+                                   "/entry");
+
+                ws.onmessage = function(ev) {
+                    var model = JSON.parse(ev.data);
+                    console.log(model);
+                };
+                API.init(ws, { user: user.id });
+            });
+        };
 
 		this.stop = function () {
 			if (this.interval) {

@@ -35,6 +35,8 @@ type Server struct {
     Env    map[string]interface{}
     //save the listener so it can be closed
     l   net.Listener
+    //Save the mux so non-standard handlers can be bound
+    mux    *http.ServeMux
 }
 
 func NewServer() *Server {
@@ -92,6 +94,11 @@ func (s *Server) Get(route string, handler interface{}) {
     s.addRoute(route, "GET", handler)
 }
 
+// Expose standard Handle
+func (s *Server) Handle(route string, handler http.Handler) {
+    s.mux.Handle(route, handler)
+}
+
 // Post adds a handler for the 'POST' http method for server s.
 func (s *Server) Post(route string, handler interface{}) {
     s.addRoute(route, "POST", handler)
@@ -124,7 +131,7 @@ func (s *Server) Run(addr string) {
         mux.Handle("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
     }
     mux.Handle("/", s)
-
+    s.mux = mux
     s.Logger.Printf("web.go serving %s\n", addr)
 
     l, err := net.Listen("tcp", addr)

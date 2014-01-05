@@ -212,6 +212,10 @@ func Close() {
     mainServer.Close()
 }
 
+func Handle(route string, handler http.Handler) {
+    mainServer.Handle(route, handler)
+}
+
 // Get adds a handler for the 'GET' http method in the main server.
 func Get(route string, handler interface{}) {
     mainServer.Get(route, handler)
